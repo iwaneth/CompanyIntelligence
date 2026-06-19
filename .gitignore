@@ -1,0 +1,9 @@
+# Ignore Docker volumes and databases
+n8n_data/
+nocodb_data/
+
+# Ignore environment variables (if you create one later)
+.env
+
+# Ignore OS generated files
+.DS_Store

@@ -1,0 +1,1386 @@
+{
+  "name": "newsFetchingWorkflow",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        384,
+        976
+      ],
+      "id": "c2ea3243-0771-456c-aa3f-116c9d71342f",
+      "name": "loopOverItems"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\n\nconst companyName = $('loopOverItems').item.json['Company Name'] || \"Unknown\";\n\nlet newsItems = [];\n\nif (item.rss && item.rss.channel && item.rss.channel.item) {\n  newsItems = item.rss.channel.item;\n  if (!Array.isArray(newsItems)) {\n    newsItems = [newsItems];\n  }\n}\n\nif (newsItems.length === 0) {\n  return [{\n    json: {\n      error: true,\n      status: \"failed\",\n      data: \"No news found.\",\n      \"Company Name\": companyName\n    }\n  }];\n}\n\nconst cleanText = (text) => {\n  if (!text) return \"\";\n  return String(text).replace(/<[^>]*>/g, \"\").trim();\n};\n\nconst topNews = newsItems.slice(0, 5);\n\nconst mergedNewsText = topNews.map((newsItem, index) => {\n  return `Article ${index + 1}:\nTitle: ${cleanText(newsItem.title)}\nDescription: ${cleanText(newsItem.description)}\nDate: ${newsItem.pubDate?._ || newsItem.pubDate || \"Unknown\"}`;\n}).join('\\n\\n---\\n\\n');\n\nreturn [{\n  json: {\n    error: false,\n    status: \"success\",\n    data: mergedNewsText,\n    \"Company Name\": companyName\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        976
+      ],
+      "id": "85c025c0-df74-4580-84a8-2a3f891e638a",
+      "name": "filterRawData",
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a68e9ba4-8549-4118-83f7-01bc8119709f",
+              "leftValue": "={{ $json.error ? 'failed' : 'success' }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "8d49e9fa-eef1-4568-a9d3-cb29d4d92b61",
+              "leftValue": "={{ $json.output.status }}",
+              "rightValue": "invalidData",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        720,
+        1568
+      ],
+      "id": "82fedc73-4f00-47cf-9c77-d66ba4c11820",
+      "name": "checksIfDataAreValid"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const rawText = $json.output;\n\nif (!rawText || rawText.trim() === \"\") {\n  return { json: buildErrorResult() };\n}\n\nlet aiData;\ntry {\n  let jsonData = JSON.parse(rawText);\n  if (Array.isArray(jsonData)) {\n    aiData = jsonData[0];\n    if (aiData.output) {\n      aiData = JSON.parse(aiData.output);\n    }\n  } else if (jsonData.output) {\n    aiData = JSON.parse(jsonData.output);\n  } else {\n    aiData = jsonData;\n  }\n} \ncatch (err) {\n  return { json: buildErrorResult(err.message) };\n}\n\nlet companyData = buildBaseResult(aiData);\nlet { errors, status } = validateCompanyData(companyData);\n\nlet result = buildResult(companyData, errors, status);\n\nreturn {\n  json: result\n};\n\nfunction buildErrorResult(errorMessage) {\n  return {\n    name: 'Unknown',\n    shortSummary: 'Unknown',\n    detailedSummary: 'Unknown',\n    lastUpdate: new Date().toISOString(),\n    pubDate: 'Unknown',\n    errorMessage: errorMessage,\n    isValid: \"invalidData\",\n    errors: [\"ERROR PARSING DATA\"]\n  };\n}\n\nfunction buildBaseResult(aiData) {\n  return {\n    name: aiData.name || 'Unknown',\n    shortSummary: aiData.shortSummary || 'Unknown',\n    detailedSummary: aiData.detailedSummary || 'Unknown',\n    pubDate: aiData.pubDate || 'Unknown',\n    lastUpdate: new Date().toISOString() \n  }\n}\n\nfunction buildResult(companyData, errors, status) {\n  return {\n    ...companyData,\n    errors: errors,\n    isValid: status\n  }\n}\n\nfunction validateCompanyData(companyData) {\n  let errors = [];\n  let status;\n\n  if (companyData.name === \"Unknown\") errors.push(`INVALID name`);\n  if (companyData.shortSummary=== \"Unknown\") errors.push(`INVALID `);\n  if (companyData.detailedSummary=== \"Unknown\") errors.push(`INVALID `);\n  if (companyData.pubDate === \"Unknown\") errors.push('INVALID pubDate')\n  if (\n    companyData.name === \"Unknown\" ||\n    companyData.shortSummary=== \"Unknown\" ||\n    companyData.detailedSummary=== \"Unknown\"\n  ) {\n    status = \"invalidData\"\n  } else if (companyData.pubDate === \"Unknown\") {\n    status = \"pubDateIsMissing\"\n  } else {\n    status = \"validData\";\n  }\n\n  return { errors, status };\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        1440
+      ],
+      "id": "1a1bb920-7544-4d1f-994c-bac023f63c8b",
+      "name": "validateOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a68e9ba4-8549-4118-83f7-01bc8119709f",
+              "leftValue": "={{ $json.error ? 'failed' : 'success' }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "f0a894a6-883e-4d59-9a45-00e4360445a8",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        1200
+      ],
+      "id": "d465ab0c-8fe8-4c42-8e57-2b416c827f82",
+      "name": "checksIfDataFromLalmaAreValid"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "881eb9b6-27a9-480d-aa7a-aaadfb9252c3",
+              "leftValue": "={{ $json.error ? 'failed' : 'success' }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "e71f91a1-abdb-44cf-8f17-0d34b8f9a360",
+              "leftValue": "={{ $json.data }}",
+              "rightValue": "No news found.",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        48,
+        976
+      ],
+      "id": "4586155d-b67e-4040-8e24-473ab6939a9b",
+      "name": "checksIfFilteredDataAreValid"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a68e9ba4-8549-4118-83f7-01bc8119709f",
+              "leftValue": "={{ $json.error ? 'failed' : 'success' }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "bf16dd8b-3257-49e1-8b26-143ec7f9cda5",
+              "leftValue": "={{  $json.output }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        1664
+      ],
+      "id": "b4ebf1bb-1a00-4e51-8067-0372188894b0",
+      "name": "checksIfDataFromGeminiAreValid"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1088,
+        1568
+      ],
+      "id": "7558b67e-acaf-44e3-b7cb-b7b9fc59679b",
+      "name": "wait",
+      "webhookId": "5c9f03e4-f876-41e0-8230-f875a48dcdb4",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a68e9ba4-8549-4118-83f7-01bc8119709f",
+              "leftValue": "={{ $json.error ? 'failed' : 'success' }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "91195fee-8802-4927-9c44-60da5d79c48e",
+              "leftValue": "={{  $json.output }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        1440
+      ],
+      "id": "9034979c-a16c-481d-803f-38be66516810",
+      "name": "checksIfDataFromQwenAreValid"
+    },
+    {
+      "parameters": {
+        "url": "=https://news.google.com/rss/search?q={{ $json[\"Company Name\"] }}+company&hl=en-US&gl=UK",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        576,
+        976
+      ],
+      "id": "87b90452-1de5-4b6b-acbd-62ffe313b208",
+      "name": "HTTPRequestCompanieLastUpdate",
+      "retryOnFail": true,
+      "waitBetweenTries": 3500,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 5
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -128,
+        848
+      ],
+      "id": "7955e3d0-b444-4bb5-93ae-014c27fa5885",
+      "name": "scheduleTrigger",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a68e9ba4-8549-4118-83f7-01bc8119709f",
+              "leftValue": "={{ $json.error ? 'failed' : 'success' }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        800,
+        976
+      ],
+      "id": "23ef96fb-a2b4-4598-a239-5ac6bfd553c7",
+      "name": "checksIfDataFromHTTPLastUpdateNodeAreValid"
+    },
+    {
+      "parameters": {
+        "options": {
+          "mergeAttrs": false,
+          "normalize": false,
+          "trim": false
+        }
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        976,
+        976
+      ],
+      "id": "bb2b784b-5888-4e10-b74e-4312fbe5e569",
+      "name": "XML"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        1328
+      ],
+      "id": "eeeb6116-c839-4f76-98fc-b20c25cb74c6",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "7nyxxKNBw1fybE3r",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        1552
+      ],
+      "id": "6ad1db49-8788-4211-bf7c-08a8511e09e4",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "7nyxxKNBw1fybE3r",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -112,
+        1792
+      ],
+      "id": "dc959d6e-3325-43e3-b67b-75ea9effcc8e",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "6HWIjHqCHR4fXAjZ",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyze the following news articles about a company:\n\nCompany: {{ $('loopOverItems').item.json[\"Company Name\"] }}\nTitle: {{ $json.data }} [\\nTitle]\nDescription: {{ $json.data }} [\\nDescription]\nDate: {{ $json.data }} [\\nDate]\n\nBased ONLY on the text above, generate a raw JSON object (NO markdown, NO backticks, NO explanations) with the following exact keys and structure:\n\n{\n  \"name\": \"The company name.\",\n  \"shortSummary\": \"A concise 2-sentence summary of the news.\",\n  \"detailedSummary\": \"A comprehensive overview of the event, implications, and context.\",\n  \"pubDate\": \"The publication date {{ $json.data.match('\\nDate') }}.\"\n}\n\nConstraint Checklist:\n1. Output MUST be valid JSON.\n2. Do NOT include ```json or ``` markers.\n3. Do NOT include any text outside the JSON object.\n4. Keys must be exactly as listed above (camelCase).",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -112,
+        1200
+      ],
+      "id": "aec788d0-7cf5-45e8-9458-03f7e6787e2f",
+      "name": "llama-3.3-70b-versatile",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyze the following news articles about a company:\n\nCompany: {{ $('loopOverItems').item.json[\"Company Name\"] }}\nTitle: {{ $('checksIfFilteredDataAreValid').item.json.data }} [\\nTitle]\nDescription: {{ $('checksIfFilteredDataAreValid').item.json.data }} [\\nDescription]\nDate: {{ $('checksIfFilteredDataAreValid').item.json.data }} [\\nDate]\n\nBased ONLY on the text above, generate a raw JSON object (NO markdown, NO backticks, NO explanations) with the following exact keys and structure:\n\n{\n  \"companyName\": \"The company name.\",\n  \"shortSummary\": \"A concise 2-sentence summary of the news.\",\n  \"detailedSummary\": \"A comprehensive overview of the event, implications, and context.\",\n  \"pubDate\": \"The publication date {{ $json.data.match('\\nDate') }}.\"\n}\n\nConstraint Checklist:\n1. Output MUST be valid JSON.\n2. Do NOT include ```json or ``` markers.\n3. Do NOT include any text outside the JSON object.\n4. Keys must be exactly as listed above (camelCase).",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -112,
+        1664
+      ],
+      "id": "83ce469f-e067-4e2a-bb61-07b67bf24224",
+      "name": "models/gemini-3.5-flash",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyze the following news articles about a company:\n\nCompany: {{ $('loopOverItems').item.json[\"Company Name\"] }}\nTitle: {{ $('checksIfFilteredDataAreValid').item.json.data }} [\\nTitle]\nDescription: {{ $('checksIfFilteredDataAreValid').item.json.data }} [\\nDescription]\nDate: {{ $('checksIfFilteredDataAreValid').item.json.data }} [\\nDate]\n\nBased ONLY on the text above, generate a raw JSON object (NO markdown, NO backticks, NO explanations) with the following exact keys and structure:\n\n{\n  \"companyName\": \"The company name.\",\n  \"shortSummary\": \"A concise 2-sentence summary of the news.\",\n  \"detailedSummary\": \"A comprehensive overview of the event, implications, and context.\",\n  \"pubDate\": \"The publication date {{ $json.data.match('\\nDate') }}.\"\n}\n\nConstraint Checklist:\n1. Output MUST be valid JSON.\n2. Do NOT include ```json or ``` markers.\n3. Do NOT include any text outside the JSON object.\n4. Keys must be exactly as listed above (camelCase).",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -112,
+        1440
+      ],
+      "id": "85afae28-c7bd-4655-a719-4b796251b0f3",
+      "name": "meta-llama/llama-4-scout-17b-16e-instruct",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": " news Lalma AI agent failed",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        368,
+        1200
+      ],
+      "id": "df3dce23-cdd3-44d9-8115-17304b0ab630",
+      "name": "newsLalmaFailure",
+      "webhookId": "80552c5d-927f-4250-9470-ca4fff4a618c",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "QJ2EFo8lbaHb5abA",
+          "name": "Discord Webhook account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": " news Qwen AI agent failed",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        368,
+        1440
+      ],
+      "id": "15164710-00bc-4e61-b7f5-75720cd05db6",
+      "name": "newsQwenFailure",
+      "webhookId": "80552c5d-927f-4250-9470-ca4fff4a618c",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "QJ2EFo8lbaHb5abA",
+          "name": "Discord Webhook account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": " news Gemeni AI agent failed",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        368,
+        1664
+      ],
+      "id": "b2f5b768-2778-44e0-929f-4c421713a1cf",
+      "name": "newsGeminiFailure",
+      "webhookId": "80552c5d-927f-4250-9470-ca4fff4a618c",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "QJ2EFo8lbaHb5abA",
+          "name": "Discord Webhook account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "search",
+        "workspaceId": {
+          "__rl": true,
+          "value": "w8d25w8t",
+          "mode": "list",
+          "cachedResultName": "Default Workspace",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t"
+        },
+        "projectId": {
+          "__rl": true,
+          "value": "pwbonlsiyo3g2ae",
+          "mode": "list",
+          "cachedResultName": "profile and news",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae"
+        },
+        "table": {
+          "__rl": true,
+          "value": "mionkl05iybori3",
+          "mode": "list",
+          "cachedResultName": "lastNews",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae/mionkl05iybori3"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 4,
+      "position": [
+        208,
+        976
+      ],
+      "id": "ca85a4af-c4d1-4f3e-b89e-be06a0fb5969",
+      "name": "getCompaniesNames",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "C3EuYH9AObHYPqw5",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "update",
+        "workspaceId": {
+          "__rl": true,
+          "value": "w8d25w8t",
+          "mode": "list",
+          "cachedResultName": "Default Workspace",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t"
+        },
+        "projectId": {
+          "__rl": true,
+          "value": "pwbonlsiyo3g2ae",
+          "mode": "list",
+          "cachedResultName": "profile and news",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae"
+        },
+        "table": {
+          "__rl": true,
+          "value": "mionkl05iybori3",
+          "mode": "list",
+          "cachedResultName": "lastNews",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae/mionkl05iybori3"
+        },
+        "id": "={{ $('loopOverItems').item.json.id_fields.Id }}",
+        "fieldsMapper": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "shortSummary": "={{ $json.shortSummary }}",
+            "detailedSummary": "={{ $json.detailedSummary }}",
+            "lastupdate": "={{ new Date().toISOString() }}",
+            "errors": "={{ $json.errors }}"
+          },
+          "matchingColumns": [
+            "Title"
+          ],
+          "schema": [
+            {
+              "id": "companyName",
+              "displayName": "companyName",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "shortSummary",
+              "displayName": "shortSummary",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "detailedSummary",
+              "displayName": "detailedSummary",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "lastupdate",
+              "displayName": "lastupdate",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "errors",
+              "displayName": "errors",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 4,
+      "position": [
+        1088,
+        1440
+      ],
+      "id": "6f2e5c1c-ec60-4028-9d40-9a691b831ba4",
+      "name": "cleanNewsDataUpdate",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "C3EuYH9AObHYPqw5",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "update",
+        "workspaceId": {
+          "__rl": true,
+          "value": "w8d25w8t",
+          "mode": "list",
+          "cachedResultName": "Default Workspace",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t"
+        },
+        "projectId": {
+          "__rl": true,
+          "value": "pwbonlsiyo3g2ae",
+          "mode": "list",
+          "cachedResultName": "profile and news",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae"
+        },
+        "table": {
+          "__rl": true,
+          "value": "mnw6isgi9j7s4wg",
+          "mode": "list",
+          "cachedResultName": "errors",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae/mnw6isgi9j7s4wg"
+        },
+        "id": "={{ $('loopOverItems').item.json.id_fields.Id }}",
+        "fieldsMapper": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "companyName": "={{ $('loopOverItems').item.json.fields.companyName }}",
+            "newsErrorMessage": "={{ $json.isValid }}",
+            "newsErrorDate": "={{ new Date().toISOString() }}",
+            "newsError": "={{ $json.errors }}"
+          },
+          "matchingColumns": [
+            "Title"
+          ],
+          "schema": [
+            {
+              "id": "companyName",
+              "displayName": "companyName",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "profileErrorMessage",
+              "displayName": "profileErrorMessage",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "profileErrorDate",
+              "displayName": "profileErrorDate",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "profileErrorRetryCount",
+              "displayName": "profileErrorRetryCount",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "newsErrorMessage",
+              "displayName": "newsErrorMessage",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "newsErrorDate",
+              "displayName": "newsErrorDate",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "newsErrorRetryCount",
+              "displayName": "newsErrorRetryCount",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "profileErrors",
+              "displayName": "profileErrors",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "newsError",
+              "displayName": "newsError",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 4,
+      "position": [
+        912,
+        1568
+      ],
+      "id": "f2b45cbc-95f7-436d-ad58-fd89f0aa7686",
+      "name": "storeTheInvalidError2",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "C3EuYH9AObHYPqw5",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "update",
+        "workspaceId": {
+          "__rl": true,
+          "value": "w8d25w8t",
+          "mode": "list",
+          "cachedResultName": "Default Workspace",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t"
+        },
+        "projectId": {
+          "__rl": true,
+          "value": "pwbonlsiyo3g2ae",
+          "mode": "list",
+          "cachedResultName": "profile and news",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae"
+        },
+        "table": {
+          "__rl": true,
+          "value": "mnw6isgi9j7s4wg",
+          "mode": "list",
+          "cachedResultName": "errors",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae/mnw6isgi9j7s4wg"
+        },
+        "id": "={{ $('loopOverItems').item.json.id_fields.Id }}",
+        "fieldsMapper": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "companyName": "={{ $('loopOverItems').item.json.fields.companyName }}",
+            "newsErrorMessage": "={{ $json.data || \"httpFaild\"}}",
+            "newsErrorDate": "={{ new Date().toISOString() }}",
+            "newsError": "={{ $json.error || false }}"
+          },
+          "matchingColumns": [
+            "Title"
+          ],
+          "schema": [
+            {
+              "id": "companyName",
+              "displayName": "companyName",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "profileErrorMessage",
+              "displayName": "profileErrorMessage",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "profileErrorDate",
+              "displayName": "profileErrorDate",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "profileErrorRetryCount",
+              "displayName": "profileErrorRetryCount",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "newsErrorMessage",
+              "displayName": "newsErrorMessage",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "newsErrorDate",
+              "displayName": "newsErrorDate",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "newsErrorRetryCount",
+              "displayName": "newsErrorRetryCount",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "profileErrors",
+              "displayName": "profileErrors",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "newsError",
+              "displayName": "newsError",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 4,
+      "position": [
+        912,
+        1440
+      ],
+      "id": "70b8bfbd-c542-41a9-98c1-5af7dfe12002",
+      "name": "storeTheInvalidError3",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "C3EuYH9AObHYPqw5",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "={{ \"Fetching news completed in \" + new Date().toISOString() + \" with \" }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        576,
+        848
+      ],
+      "id": "402532fa-e69d-4d6e-a7a9-eabd117672ca",
+      "name": "profileRefreshNoti",
+      "webhookId": "80552c5d-927f-4250-9470-ca4fff4a618c",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "QJ2EFo8lbaHb5abA",
+          "name": "Discord Webhook account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "news http node failed",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        800,
+        848
+      ],
+      "id": "3cd2ba35-62c1-40f0-ae0e-316096f02724",
+      "name": "newsHTTPFailure",
+      "webhookId": "80552c5d-927f-4250-9470-ca4fff4a618c",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "QJ2EFo8lbaHb5abA",
+          "name": "Discord Webhook account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "loopOverItems": {
+      "main": [
+        [
+          {
+            "node": "profileRefreshNoti",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTPRequestCompanieLastUpdate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "filterRawData": {
+      "main": [
+        [
+          {
+            "node": "checksIfFilteredDataAreValid",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "checksIfFilteredDataAreValid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "checksIfDataAreValid": {
+      "main": [
+        [
+          {
+            "node": "cleanNewsDataUpdate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "storeTheInvalidError2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "validateOutput": {
+      "main": [
+        [
+          {
+            "node": "checksIfDataAreValid",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "checksIfDataAreValid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "checksIfDataFromLalmaAreValid": {
+      "main": [
+        [
+          {
+            "node": "validateOutput",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "meta-llama/llama-4-scout-17b-16e-instruct",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "newsLalmaFailure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "checksIfFilteredDataAreValid": {
+      "main": [
+        [
+          {
+            "node": "llama-3.3-70b-versatile",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "storeTheInvalidError3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "checksIfDataFromGeminiAreValid": {
+      "main": [
+        [
+          {
+            "node": "validateOutput",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "newsGeminiFailure",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "storeTheInvalidError2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "wait": {
+      "main": [
+        [
+          {
+            "node": "loopOverItems",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "checksIfDataFromQwenAreValid": {
+      "main": [
+        [
+          {
+            "node": "validateOutput",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "models/gemini-3.5-flash",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTPRequestCompanieLastUpdate": {
+      "main": [
+        [
+          {
+            "node": "checksIfDataFromHTTPLastUpdateNodeAreValid",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "checksIfDataFromHTTPLastUpdateNodeAreValid",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "newsHTTPFailure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "scheduleTrigger": {
+      "main": [
+        [
+          {
+            "node": "getCompaniesNames",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "checksIfDataFromHTTPLastUpdateNodeAreValid": {
+      "main": [
+        [
+          {
+            "node": "XML",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "storeTheInvalidError3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "XML": {
+      "main": [
+        [
+          {
+            "node": "filterRawData",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "llama-3.3-70b-versatile",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "meta-llama/llama-4-scout-17b-16e-instruct",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "models/gemini-3.5-flash",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "llama-3.3-70b-versatile": {
+      "main": [
+        [
+          {
+            "node": "checksIfDataFromLalmaAreValid",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "checksIfDataFromLalmaAreValid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "models/gemini-3.5-flash": {
+      "main": [
+        [
+          {
+            "node": "checksIfDataFromGeminiAreValid",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "checksIfDataFromGeminiAreValid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "meta-llama/llama-4-scout-17b-16e-instruct": {
+      "main": [
+        [
+          {
+            "node": "checksIfDataFromQwenAreValid",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "checksIfDataFromQwenAreValid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getCompaniesNames": {
+      "main": [
+        [
+          {
+            "node": "loopOverItems",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cleanNewsDataUpdate": {
+      "main": [
+        [
+          {
+            "node": "wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "storeTheInvalidError3": {
+      "main": [
+        [
+          {
+            "node": "wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "storeTheInvalidError2": {
+      "main": [
+        [
+          {
+            "node": "wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "036cc4fd-55f3-47c3-9446-4f42e9bea3d9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "874a53071ff3a00f0c61ef646f6b22fc209bc14b7a8783a508106cc2e7a274f7"
+  },
+  "nodeGroups": [],
+  "id": "omdwM0rXqj3wAAes",
+  "tags": []
+}
