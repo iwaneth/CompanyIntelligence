@@ -8,7 +8,7 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        384,
+        528,
         976
       ],
       "id": "c2ea3243-0771-456c-aa3f-116c9d71342f",
@@ -66,8 +66,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        720,
-        1568
+        576,
+        1328
       ],
       "id": "82fedc73-4f00-47cf-9c77-d66ba4c11820",
       "name": "checksIfDataAreValid"
@@ -75,13 +75,13 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const rawText = $json.output;\n\nif (!rawText || rawText.trim() === \"\") {\n  return { json: buildErrorResult() };\n}\n\nlet aiData;\ntry {\n  let jsonData = JSON.parse(rawText);\n  if (Array.isArray(jsonData)) {\n    aiData = jsonData[0];\n    if (aiData.output) {\n      aiData = JSON.parse(aiData.output);\n    }\n  } else if (jsonData.output) {\n    aiData = JSON.parse(jsonData.output);\n  } else {\n    aiData = jsonData;\n  }\n} \ncatch (err) {\n  return { json: buildErrorResult(err.message) };\n}\n\nlet companyData = buildBaseResult(aiData);\nlet { errors, status } = validateCompanyData(companyData);\n\nlet result = buildResult(companyData, errors, status);\n\nreturn {\n  json: result\n};\n\nfunction buildErrorResult(errorMessage) {\n  return {\n    name: 'Unknown',\n    shortSummary: 'Unknown',\n    detailedSummary: 'Unknown',\n    lastUpdate: new Date().toISOString(),\n    pubDate: 'Unknown',\n    errorMessage: errorMessage,\n    isValid: \"invalidData\",\n    errors: [\"ERROR PARSING DATA\"]\n  };\n}\n\nfunction buildBaseResult(aiData) {\n  return {\n    name: aiData.name || 'Unknown',\n    shortSummary: aiData.shortSummary || 'Unknown',\n    detailedSummary: aiData.detailedSummary || 'Unknown',\n    pubDate: aiData.pubDate || 'Unknown',\n    lastUpdate: new Date().toISOString() \n  }\n}\n\nfunction buildResult(companyData, errors, status) {\n  return {\n    ...companyData,\n    errors: errors,\n    isValid: status\n  }\n}\n\nfunction validateCompanyData(companyData) {\n  let errors = [];\n  let status;\n\n  if (companyData.name === \"Unknown\") errors.push(`INVALID name`);\n  if (companyData.shortSummary=== \"Unknown\") errors.push(`INVALID `);\n  if (companyData.detailedSummary=== \"Unknown\") errors.push(`INVALID `);\n  if (companyData.pubDate === \"Unknown\") errors.push('INVALID pubDate')\n  if (\n    companyData.name === \"Unknown\" ||\n    companyData.shortSummary=== \"Unknown\" ||\n    companyData.detailedSummary=== \"Unknown\"\n  ) {\n    status = \"invalidData\"\n  } else if (companyData.pubDate === \"Unknown\") {\n    status = \"pubDateIsMissing\"\n  } else {\n    status = \"validData\";\n  }\n\n  return { errors, status };\n}"
+        "jsCode": "const rawText = $json.output;\n\nif (!rawText || rawText.trim() === \"\") {\n  return { json: buildErrorResult() };\n}\n\nlet aiData;\ntry {\n  let jsonData = JSON.parse(rawText);\n  if (Array.isArray(jsonData)) {\n    aiData = jsonData[0];\n    if (aiData.output) {\n      aiData = JSON.parse(aiData.output);\n    }\n  } else if (jsonData.output) {\n    aiData = JSON.parse(jsonData.output);\n  } else {\n    aiData = jsonData;\n  }\n} \ncatch (err) {\n  return { json: buildErrorResult(err.message) };\n}\n\nlet companyData = buildBaseResult(aiData);\nlet { errors, status } = validateCompanyData(companyData);\n\nlet result = buildResult(companyData, errors, status);\n\nreturn {\n  json: result\n};\n\nfunction buildErrorResult(errorMessage) {\n  return {\n    shortSummary: 'Error parsing data',\n    detailedSummary: 'Error parsing data',\n    lastUpdate: new Date().toISOString(),\n    pubDate: 'Unknown',\n    revenue: 'Error parsing data',\n    errorMessage: errorMessage,\n    isValid: \"invalidData\",\n    errors: [\"ERROR PARSING DATA\"]\n  };\n}\n\nfunction buildBaseResult(aiData) {\n  return {\n    shortSummary: aiData.shortSummary || 'Unknown',\n    detailedSummary: aiData.detailedSummary || 'Unknown',\n    pubDate: aiData.pubDate || 'Unknown',\n    revenue: aiData.revenue || 'Unknown',\n    lastUpdate: new Date().toISOString() \n  }\n}\n\nfunction buildResult(companyData, errors, status) {\n  return {\n    ...companyData,\n    errors: errors,\n    isValid: status\n  }\n}\n\nfunction validateCompanyData(companyData) {\n  let errors = [];\n  let status;\n\n  if (companyData.shortSummary === \"Unknown\") errors.push('INVALID shortSummary');\n  if (companyData.detailedSummary === \"Unknown\") errors.push('INVALID detailedSummary');\n  if (companyData.pubDate === 'Unknown') errors.push('INVALID pubDate');\n  if (companyData.revenue === \"Unknown\") errors.push('INVALID revenue')\n  if (\n    companyData.shortSummary === \"Unknown\" ||\n    companyData.detailedSummary === \"Unknown\"\n  ) {\n    status = \"invalidData\"\n  } else {\n    status = \"validData\";\n  }\n\n  return { errors, status };\n}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        720,
-        1440
+        576,
+        1168
       ],
       "id": "1a1bb920-7544-4d1f-994c-bac023f63c8b",
       "name": "validateOutput",
@@ -225,8 +225,8 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        1088,
-        1568
+        736,
+        1488
       ],
       "id": "7558b67e-acaf-44e3-b7cb-b7b9fc59679b",
       "name": "wait",
@@ -285,7 +285,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        576,
+        720,
         976
       ],
       "id": "87b90452-1de5-4b6b-acbd-62ffe313b208",
@@ -308,7 +308,7 @@
       "typeVersion": 1.3,
       "position": [
         -128,
-        848
+        832
       ],
       "id": "7955e3d0-b444-4bb5-93ae-014c27fa5885",
       "name": "scheduleTrigger",
@@ -342,7 +342,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        800,
+        944,
         976
       ],
       "id": "23ef96fb-a2b4-4598-a239-5ac6bfd553c7",
@@ -359,7 +359,7 @@
       "type": "n8n-nodes-base.xml",
       "typeVersion": 1,
       "position": [
-        976,
+        1120,
         976
       ],
       "id": "bb2b784b-5888-4e10-b74e-4312fbe5e569",
@@ -428,7 +428,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Analyze the following news articles about a company:\n\nCompany: {{ $('loopOverItems').item.json[\"Company Name\"] }}\nTitle: {{ $json.data }} [\\nTitle]\nDescription: {{ $json.data }} [\\nDescription]\nDate: {{ $json.data }} [\\nDate]\n\nBased ONLY on the text above, generate a raw JSON object (NO markdown, NO backticks, NO explanations) with the following exact keys and structure:\n\n{\n  \"name\": \"The company name.\",\n  \"shortSummary\": \"A concise 2-sentence summary of the news.\",\n  \"detailedSummary\": \"A comprehensive overview of the event, implications, and context.\",\n  \"pubDate\": \"The publication date {{ $json.data.match('\\nDate') }}.\"\n}\n\nConstraint Checklist:\n1. Output MUST be valid JSON.\n2. Do NOT include ```json or ``` markers.\n3. Do NOT include any text outside the JSON object.\n4. Keys must be exactly as listed above (camelCase).",
+        "text": "=Analyze the following news articles about a company:\n\nCompany: {{ $('loopOverItems').item.json[\"Company Name\"] }}\nTitle: {{ $json.data }} [\\nTitle]\nDescription: {{ $json.data }} [\\nDescription]\nDate: {{ $json.data }} [\\nDate]\n\nBased ONLY on the text above, generate a raw JSON object (NO markdown, NO backticks, NO explanations) with the following exact keys and structure:\n\n{\n  \"shortSummary\": \"A concise 2-sentence summary of the news.\",\n  \"detailedSummary\": \"A comprehensive overview of the event, implications, and context.\",\n  \"revenue\": \"The anual company porfits (if not provided use your internal knowledge)\"\n  \"pubDate\": \"The publication date {{ $json.data.match('\\nDate') }}.\"\n}\n\nConstraint Checklist:\n1. Output MUST be valid JSON.\n2. Do NOT include ```json or ``` markers.\n3. Do NOT include any text outside the JSON object.\n4. Keys must be exactly as listed above (camelCase).",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -444,7 +444,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Analyze the following news articles about a company:\n\nCompany: {{ $('loopOverItems').item.json[\"Company Name\"] }}\nTitle: {{ $('checksIfFilteredDataAreValid').item.json.data }} [\\nTitle]\nDescription: {{ $('checksIfFilteredDataAreValid').item.json.data }} [\\nDescription]\nDate: {{ $('checksIfFilteredDataAreValid').item.json.data }} [\\nDate]\n\nBased ONLY on the text above, generate a raw JSON object (NO markdown, NO backticks, NO explanations) with the following exact keys and structure:\n\n{\n  \"companyName\": \"The company name.\",\n  \"shortSummary\": \"A concise 2-sentence summary of the news.\",\n  \"detailedSummary\": \"A comprehensive overview of the event, implications, and context.\",\n  \"pubDate\": \"The publication date {{ $json.data.match('\\nDate') }}.\"\n}\n\nConstraint Checklist:\n1. Output MUST be valid JSON.\n2. Do NOT include ```json or ``` markers.\n3. Do NOT include any text outside the JSON object.\n4. Keys must be exactly as listed above (camelCase).",
+        "text": "=Analyze the following news articles about a company:\n\nCompany: {{ $('loopOverItems').item.json[\"Company Name\"] }}\nTitle: {{ $json.data }} [\\nTitle]\nDescription: {{ $json.data }} [\\nDescription]\nDate: {{ $json.data }} [\\nDate]\n\nBased ONLY on the text above, generate a raw JSON object (NO markdown, NO backticks, NO explanations) with the following exact keys and structure:\n\n{\n  \"shortSummary\": \"A concise 2-sentence summary of the news.\",\n  \"detailedSummary\": \"A comprehensive overview of the event, implications, and context.\",\n  \"revenue\": \"The anual company porfits (if not provided use your internal knowledge)\"\n  \"pubDate\": \"The publication date {{ $json.data.match('\\nDate') }}.\"\n}\n\nConstraint Checklist:\n1. Output MUST be valid JSON.\n2. Do NOT include ```json or ``` markers.\n3. Do NOT include any text outside the JSON object.\n4. Keys must be exactly as listed above (camelCase).",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -460,7 +460,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Analyze the following news articles about a company:\n\nCompany: {{ $('loopOverItems').item.json[\"Company Name\"] }}\nTitle: {{ $('checksIfFilteredDataAreValid').item.json.data }} [\\nTitle]\nDescription: {{ $('checksIfFilteredDataAreValid').item.json.data }} [\\nDescription]\nDate: {{ $('checksIfFilteredDataAreValid').item.json.data }} [\\nDate]\n\nBased ONLY on the text above, generate a raw JSON object (NO markdown, NO backticks, NO explanations) with the following exact keys and structure:\n\n{\n  \"companyName\": \"The company name.\",\n  \"shortSummary\": \"A concise 2-sentence summary of the news.\",\n  \"detailedSummary\": \"A comprehensive overview of the event, implications, and context.\",\n  \"pubDate\": \"The publication date {{ $json.data.match('\\nDate') }}.\"\n}\n\nConstraint Checklist:\n1. Output MUST be valid JSON.\n2. Do NOT include ```json or ``` markers.\n3. Do NOT include any text outside the JSON object.\n4. Keys must be exactly as listed above (camelCase).",
+        "text": "=Analyze the following news articles about a company:\n\nCompany: {{ $('loopOverItems').item.json[\"Company Name\"] }}\nTitle: {{ $json.data }} [\\nTitle]\nDescription: {{ $json.data }} [\\nDescription]\nDate: {{ $json.data }} [\\nDate]\n\nBased ONLY on the text above, generate a raw JSON object (NO markdown, NO backticks, NO explanations) with the following exact keys and structure:\n\n{\n  \"shortSummary\": \"A concise 2-sentence summary of the news.\",\n  \"detailedSummary\": \"A comprehensive overview of the event, implications, and context.\",\n  \"revenue\": \"The anual company porfits (if not provided use your internal knowledge)\"\n  \"pubDate\": \"The publication date {{ $json.data.match('\\nDate') }}.\"\n}\n\nConstraint Checklist:\n1. Output MUST be valid JSON.\n2. Do NOT include ```json or ``` markers.\n3. Do NOT include any text outside the JSON object.\n4. Keys must be exactly as listed above (camelCase).",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -482,8 +482,8 @@
       "type": "n8n-nodes-base.discord",
       "typeVersion": 2,
       "position": [
-        368,
-        1200
+        928,
+        1488
       ],
       "id": "df3dce23-cdd3-44d9-8115-17304b0ab630",
       "name": "newsLalmaFailure",
@@ -504,8 +504,8 @@
       "type": "n8n-nodes-base.discord",
       "typeVersion": 2,
       "position": [
-        368,
-        1440
+        928,
+        1632
       ],
       "id": "15164710-00bc-4e61-b7f5-75720cd05db6",
       "name": "newsQwenFailure",
@@ -526,8 +526,8 @@
       "type": "n8n-nodes-base.discord",
       "typeVersion": 2,
       "position": [
-        368,
-        1664
+        928,
+        1776
       ],
       "id": "b2f5b768-2778-44e0-929f-4c421713a1cf",
       "name": "newsGeminiFailure",
@@ -564,22 +564,27 @@
           "cachedResultName": "lastNews",
           "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae/mionkl05iybori3"
         },
+        "returnAll": true,
         "options": {}
       },
       "type": "n8n-nodes-base.nocoDb",
       "typeVersion": 4,
       "position": [
-        208,
+        224,
         976
       ],
       "id": "ca85a4af-c4d1-4f3e-b89e-be06a0fb5969",
       "name": "getCompaniesNames",
+      "retryOnFail": true,
+      "waitBetweenTries": 4000,
+      "maxTries": 5,
       "credentials": {
         "nocoDbApiToken": {
           "id": "C3EuYH9AObHYPqw5",
           "name": "NocoDB Token account"
         }
-      }
+      },
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -672,17 +677,20 @@
       "type": "n8n-nodes-base.nocoDb",
       "typeVersion": 4,
       "position": [
-        1088,
-        1440
+        736,
+        1328
       ],
       "id": "6f2e5c1c-ec60-4028-9d40-9a691b831ba4",
       "name": "cleanNewsDataUpdate",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
       "credentials": {
         "nocoDbApiToken": {
           "id": "C3EuYH9AObHYPqw5",
           "name": "NocoDB Token account"
         }
-      }
+      },
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -713,7 +721,6 @@
         "fieldsMapper": {
           "mappingMode": "defineBelow",
           "value": {
-            "companyName": "={{ $('loopOverItems').item.json.fields.companyName }}",
             "newsErrorMessage": "={{ $json.isValid }}",
             "newsErrorDate": "={{ new Date().toISOString() }}",
             "newsError": "={{ $json.errors }}"
@@ -729,7 +736,7 @@
               "display": true,
               "defaultMatch": false,
               "readOnly": false,
-              "removed": false
+              "removed": true
             },
             {
               "id": "profileErrorMessage",
@@ -750,9 +757,9 @@
               "removed": true
             },
             {
-              "id": "profileErrorRetryCount",
-              "displayName": "profileErrorRetryCount",
-              "type": "string",
+              "id": "PERetryCounter",
+              "displayName": "PERetryCounter",
+              "type": "number",
               "display": true,
               "defaultMatch": false,
               "readOnly": false,
@@ -777,13 +784,13 @@
               "removed": false
             },
             {
-              "id": "newsErrorRetryCount",
-              "displayName": "newsErrorRetryCount",
-              "type": "string",
+              "id": "NERetryCount",
+              "displayName": "NERetryCount",
+              "type": "number",
               "display": true,
               "defaultMatch": false,
               "readOnly": false,
-              "removed": false
+              "removed": true
             },
             {
               "id": "profileErrors",
@@ -811,17 +818,20 @@
       "type": "n8n-nodes-base.nocoDb",
       "typeVersion": 4,
       "position": [
-        912,
-        1568
+        576,
+        1472
       ],
       "id": "f2b45cbc-95f7-436d-ad58-fd89f0aa7686",
       "name": "storeTheInvalidError2",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
       "credentials": {
         "nocoDbApiToken": {
           "id": "C3EuYH9AObHYPqw5",
           "name": "NocoDB Token account"
         }
-      }
+      },
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -852,7 +862,6 @@
         "fieldsMapper": {
           "mappingMode": "defineBelow",
           "value": {
-            "companyName": "={{ $('loopOverItems').item.json.fields.companyName }}",
             "newsErrorMessage": "={{ $json.data || \"httpFaild\"}}",
             "newsErrorDate": "={{ new Date().toISOString() }}",
             "newsError": "={{ $json.error || false }}"
@@ -868,7 +877,7 @@
               "display": true,
               "defaultMatch": false,
               "readOnly": false,
-              "removed": false
+              "removed": true
             },
             {
               "id": "profileErrorMessage",
@@ -889,9 +898,9 @@
               "removed": true
             },
             {
-              "id": "profileErrorRetryCount",
-              "displayName": "profileErrorRetryCount",
-              "type": "string",
+              "id": "PERetryCounter",
+              "displayName": "PERetryCounter",
+              "type": "number",
               "display": true,
               "defaultMatch": false,
               "readOnly": false,
@@ -916,13 +925,13 @@
               "removed": false
             },
             {
-              "id": "newsErrorRetryCount",
-              "displayName": "newsErrorRetryCount",
-              "type": "string",
+              "id": "NERetryCount",
+              "displayName": "NERetryCount",
+              "type": "number",
               "display": true,
               "defaultMatch": false,
               "readOnly": false,
-              "removed": false
+              "removed": true
             },
             {
               "id": "profileErrors",
@@ -950,32 +959,701 @@
       "type": "n8n-nodes-base.nocoDb",
       "typeVersion": 4,
       "position": [
-        912,
-        1440
+        736,
+        1168
       ],
       "id": "70b8bfbd-c542-41a9-98c1-5af7dfe12002",
       "name": "storeTheInvalidError3",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
       "credentials": {
         "nocoDbApiToken": {
           "id": "C3EuYH9AObHYPqw5",
           "name": "NocoDB Token account"
         }
-      }
+      },
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
         "authentication": "webhook",
-        "content": "={{ \"Fetching news completed in \" + new Date().toISOString() + \" with \" }}",
+        "content": "news http node failed",
         "options": {}
       },
       "type": "n8n-nodes-base.discord",
       "typeVersion": 2,
       "position": [
-        576,
+        1104,
+        1632
+      ],
+      "id": "3cd2ba35-62c1-40f0-ae0e-316096f02724",
+      "name": "newsHTTPFailure",
+      "webhookId": "80552c5d-927f-4250-9470-ca4fff4a618c",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "QJ2EFo8lbaHb5abA",
+          "name": "Discord Webhook account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a68e9ba4-8549-4118-83f7-01bc8119709f",
+              "leftValue": "={{ $json.error ? 'failed' : 'success' }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        368,
+        976
+      ],
+      "id": "ffa3fb4f-a0bf-4be6-8882-17165a6d4442",
+      "name": "checkIfError"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a68e9ba4-8549-4118-83f7-01bc8119709f",
+              "leftValue": "={{ $json.error ? 'failed' : 'success' }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        896,
+        1328
+      ],
+      "id": "066aa37e-fca0-4a96-b5db-4daeab870375",
+      "name": "checkIfError1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a68e9ba4-8549-4118-83f7-01bc8119709f",
+              "leftValue": "={{ $json.error ? 'failed' : 'success' }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        896,
+        1168
+      ],
+      "id": "1b775dd8-ec43-48f7-b48a-731f628cbe9a",
+      "name": "checkIfError2"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { \"signal\": \"trigger\" } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        832
+      ],
+      "id": "71e2119b-9a6c-4361-a3dd-ba30343004b2",
+      "name": "signal2"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "uVF1P17v2iDCtHYe",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/uVF1P17v2iDCtHYe",
+          "cachedResultName": "clearingNewsOldData"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        48,
+        832
+      ],
+      "id": "f4e9a28d-2357-487c-821b-6a96d238b8be",
+      "name": "eraseData",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c171f080-abdc-4dec-8d61-1ea9e6217592",
+              "name": "NERetryCounter",
+              "value": "={{ $json.fields.NERetryCounter === null || $json.fields.NERetryCounter === undefined ? 0 : ($json.fields.NERetryCounter || 0) + 1 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1632,
+        1024
+      ],
+      "id": "0ed53a17-aa44-432e-8e47-ee6cc1206e77",
+      "name": "Edit Fields",
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "search",
+        "workspaceId": {
+          "__rl": true,
+          "value": "w8d25w8t",
+          "mode": "list",
+          "cachedResultName": "Default Workspace",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t"
+        },
+        "projectId": {
+          "__rl": true,
+          "value": "pwbonlsiyo3g2ae",
+          "mode": "list",
+          "cachedResultName": "profile and news",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae"
+        },
+        "table": {
+          "__rl": true,
+          "value": "mnw6isgi9j7s4wg",
+          "mode": "list",
+          "cachedResultName": "errors",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae/mnw6isgi9j7s4wg"
+        },
+        "returnAll": true,
+        "options": {
+          "where": "={{ \"(companyName,eq,\" + $('loopOverItems').item.json.fields.companyName + \")\" }}"
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 4,
+      "position": [
+        1328,
+        1024
+      ],
+      "id": "78d0312b-7d19-4c6f-8b1b-6c7e7a86a5d0",
+      "name": "getOriginalRetryCount",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "C3EuYH9AObHYPqw5",
+          "name": "NocoDB Token account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "search",
+        "workspaceId": {
+          "__rl": true,
+          "value": "w8d25w8t",
+          "mode": "list",
+          "cachedResultName": "Default Workspace",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t"
+        },
+        "projectId": {
+          "__rl": true,
+          "value": "pwbonlsiyo3g2ae",
+          "mode": "list",
+          "cachedResultName": "profile and news",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae"
+        },
+        "table": {
+          "__rl": true,
+          "value": "mnw6isgi9j7s4wg",
+          "mode": "list",
+          "cachedResultName": "errors",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae/mnw6isgi9j7s4wg"
+        },
+        "returnAll": true,
+        "options": {
+          "where": "={{ \"(companyName,eq,\" + $('loopOverItems').item.json.fields.companyName + \")\" }}"
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 4,
+      "position": [
+        1632,
+        1168
+      ],
+      "id": "3d652b5c-0772-4864-8513-db61d8f4183e",
+      "name": "getUpdatedRetryCount",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "C3EuYH9AObHYPqw5",
+          "name": "NocoDB Token account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "update",
+        "workspaceId": {
+          "__rl": true,
+          "value": "w8d25w8t",
+          "mode": "list",
+          "cachedResultName": "Default Workspace",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t"
+        },
+        "projectId": {
+          "__rl": true,
+          "value": "pwbonlsiyo3g2ae",
+          "mode": "list",
+          "cachedResultName": "profile and news",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae"
+        },
+        "table": {
+          "__rl": true,
+          "value": "mnw6isgi9j7s4wg",
+          "mode": "list",
+          "cachedResultName": "errors",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae/mnw6isgi9j7s4wg"
+        },
+        "id": "={{ $json.id_fields.Id }}",
+        "fieldsMapper": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "NERetryCount": "={{ $json.NERetryCounter }}"
+          },
+          "matchingColumns": [
+            "Title"
+          ],
+          "schema": [
+            {
+              "id": "companyName",
+              "displayName": "companyName",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "profileErrorMessage",
+              "displayName": "profileErrorMessage",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "profileErrorDate",
+              "displayName": "profileErrorDate",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "PERetryCounter",
+              "displayName": "PERetryCounter",
+              "type": "number",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "newsErrorMessage",
+              "displayName": "newsErrorMessage",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "newsErrorDate",
+              "displayName": "newsErrorDate",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "NERetryCount",
+              "displayName": "NERetryCount",
+              "type": "number",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "profileErrors",
+              "displayName": "profileErrors",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "newsError",
+              "displayName": "newsError",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 4,
+      "position": [
+        1328,
+        1168
+      ],
+      "id": "877acab0-f276-41e1-8fda-49739b45c940",
+      "name": "updateRetryCount",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "C3EuYH9AObHYPqw5",
+          "name": "NocoDB Token account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a68e9ba4-8549-4118-83f7-01bc8119709f",
+              "leftValue": "={{ $json.fields.NERetryCounter }}",
+              "rightValue": 3,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1488,
+        1312
+      ],
+      "id": "ecc823ed-f191-47dd-aa96-f1f5064c5cd7",
+      "name": "checkIfRetryCountIsMax"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1632,
+        1312
+      ],
+      "id": "3246c9ca-535b-4525-93d8-f4f74fac9f77",
+      "name": "wait1",
+      "webhookId": "5c9f03e4-f876-41e0-8230-f875a48dcdb4",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a68e9ba4-8549-4118-83f7-01bc8119709f",
+              "leftValue": "={{ $json.error ? 'failed' : 'success' }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1488,
+        1024
+      ],
+      "id": "ba9383e4-8e9c-4ea1-ab18-d25ee63643cc",
+      "name": "checkIfError3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a68e9ba4-8549-4118-83f7-01bc8119709f",
+              "leftValue": "={{ $json.error ? 'failed' : 'success' }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1488,
+        1168
+      ],
+      "id": "3fd6915b-d972-43d5-bd9e-4dd4cd5b2559",
+      "name": "checkIfError4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a68e9ba4-8549-4118-83f7-01bc8119709f",
+              "leftValue": "={{ $json.error ? 'failed' : 'success' }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1328,
+        1312
+      ],
+      "id": "7931b05c-acb0-470a-9b5f-1345855da34e",
+      "name": "checkIfError5"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { \"signal\": \"reload_company\" } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1776,
+        1024
+      ],
+      "id": "1478ca08-db69-4d26-9988-16aacebab17c",
+      "name": "signal"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { \"signal\": \"next_company\" } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1776,
+        1168
+      ],
+      "id": "bdcd533d-1655-4cb5-b771-3b96be0c0a30",
+      "name": "signal3"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "nocoDB is not responding, manual intervention required! (news chain)",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        1632
+      ],
+      "id": "650d667c-6f06-4a9f-8839-dbdc7ad2020d",
+      "name": "newsNocoDBFailureNoti",
+      "webhookId": "80552c5d-927f-4250-9470-ca4fff4a618c",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "QJ2EFo8lbaHb5abA",
+          "name": "Discord Webhook account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "nocoDB is not responding, manual intervention required! (news chain)",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        1488
+      ],
+      "id": "8237750e-58e2-4182-b979-e8d1d340b2ad",
+      "name": "newsNocoDBFailureNoti1",
+      "webhookId": "80552c5d-927f-4250-9470-ca4fff4a618c",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "QJ2EFo8lbaHb5abA",
+          "name": "Discord Webhook account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "errorMessage": "nocoDB is not responding"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        528,
         848
       ],
+      "id": "5b20fb27-e44c-446e-8a97-6a49bb2577d7",
+      "name": "Stop and Error"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "={{ \"Fetching news completed in \" + new Date().toISOString() }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        1488
+      ],
       "id": "402532fa-e69d-4d6e-a7a9-eabd117672ca",
-      "name": "profileRefreshNoti",
+      "name": "newsRefreshNoti",
       "webhookId": "80552c5d-927f-4250-9470-ca4fff4a618c",
       "credentials": {
         "discordWebhookApi": {
@@ -987,18 +1665,18 @@
     {
       "parameters": {
         "authentication": "webhook",
-        "content": "news http node failed",
+        "content": "={{ \"manual intervention required for ID: \" + $('loopOverItems').item.json.id_fields.Id + \",(\" + $('loopOverItems').item.json.fields.companyName + \")\"}}",
         "options": {}
       },
       "type": "n8n-nodes-base.discord",
       "typeVersion": 2,
       "position": [
-        800,
-        848
+        1280,
+        1792
       ],
-      "id": "3cd2ba35-62c1-40f0-ae0e-316096f02724",
-      "name": "newsHTTPFailure",
-      "webhookId": "80552c5d-927f-4250-9470-ca4fff4a618c",
+      "id": "db62a266-b2c7-494f-888d-9e30bf4786a4",
+      "name": "maxRetryCountReached",
+      "webhookId": "dc823a39-7d68-484d-9854-37a9d80f1087",
       "credentials": {
         "discordWebhookApi": {
           "id": "QJ2EFo8lbaHb5abA",
@@ -1013,7 +1691,7 @@
       "main": [
         [
           {
-            "node": "profileRefreshNoti",
+            "node": "newsRefreshNoti",
             "type": "main",
             "index": 0
           }
@@ -1170,6 +1848,11 @@
             "node": "models/gemini-3.5-flash",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "newsQwenFailure",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -1201,7 +1884,7 @@
       "main": [
         [
           {
-            "node": "getCompaniesNames",
+            "node": "eraseData",
             "type": "main",
             "index": 0
           }
@@ -1328,7 +2011,7 @@
       "main": [
         [
           {
-            "node": "loopOverItems",
+            "node": "checkIfError",
             "type": "main",
             "index": 0
           }
@@ -1339,7 +2022,14 @@
       "main": [
         [
           {
-            "node": "wait",
+            "node": "checkIfError1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "checkIfError1",
             "type": "main",
             "index": 0
           }
@@ -1350,7 +2040,14 @@
       "main": [
         [
           {
-            "node": "wait",
+            "node": "checkIfError2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "checkIfError2",
             "type": "main",
             "index": 0
           }
@@ -1361,7 +2058,295 @@
       "main": [
         [
           {
+            "node": "checkIfError2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "checkIfError2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "checkIfError": {
+      "main": [
+        [
+          {
+            "node": "loopOverItems",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "newsNocoDBFailureNoti1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "checkIfError1": {
+      "main": [
+        [
+          {
             "node": "wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "signal3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "newsNocoDBFailureNoti",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "eraseData": {
+      "main": [
+        [
+          {
+            "node": "signal2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "signal2": {
+      "main": [
+        [
+          {
+            "node": "getCompaniesNames",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "checkIfError2": {
+      "main": [
+        [
+          {
+            "node": "getOriginalRetryCount",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "signal3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "newsNocoDBFailureNoti",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "updateRetryCount",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getOriginalRetryCount": {
+      "main": [
+        [
+          {
+            "node": "checkIfError3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "checkIfError3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getUpdatedRetryCount": {
+      "main": [
+        [
+          {
+            "node": "checkIfError5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "checkIfError5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "updateRetryCount": {
+      "main": [
+        [
+          {
+            "node": "checkIfError4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "checkIfError4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "checkIfRetryCountIsMax": {
+      "main": [
+        [
+          {
+            "node": "wait1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "signal3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "maxRetryCountReached",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "wait1": {
+      "main": [
+        [
+          {
+            "node": "signal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "checkIfError3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "signal3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "newsNocoDBFailureNoti",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "checkIfError4": {
+      "main": [
+        [
+          {
+            "node": "getUpdatedRetryCount",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "signal3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "newsNocoDBFailureNoti",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "checkIfError5": {
+      "main": [
+        [
+          {
+            "node": "checkIfRetryCountIsMax",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "signal3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "newsNocoDBFailureNoti",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "signal3": {
+      "main": [
+        [
+          {
+            "node": "loopOverItems",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "signal": {
+      "main": [
+        [
+          {
+            "node": "HTTPRequestCompanieLastUpdate",
             "type": "main",
             "index": 0
           }
@@ -1375,7 +2360,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "036cc4fd-55f3-47c3-9446-4f42e9bea3d9",
+  "versionId": "4eb4499c-faaa-4243-89fa-821ee5a4dc4d",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "874a53071ff3a00f0c61ef646f6b22fc209bc14b7a8783a508106cc2e7a274f7"

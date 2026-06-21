@@ -1,0 +1,570 @@
+{
+  "name": "clearingNewsOldData",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "jsonExample",
+        "jsonExample": "{}"
+      },
+      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "typeVersion": 1.1,
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -704,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "search",
+        "workspaceId": {
+          "__rl": true,
+          "value": "w8d25w8t",
+          "mode": "list",
+          "cachedResultName": "Default Workspace",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t"
+        },
+        "projectId": {
+          "__rl": true,
+          "value": "pwbonlsiyo3g2ae",
+          "mode": "list",
+          "cachedResultName": "profile and news",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae"
+        },
+        "table": {
+          "__rl": true,
+          "value": "mionkl05iybori3",
+          "mode": "list",
+          "cachedResultName": "lastNews",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae/mionkl05iybori3"
+        },
+        "returnAll": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 4,
+      "position": [
+        -528,
+        288
+      ],
+      "id": "992b31fb-d582-477c-8a20-a6ebaa9ec646",
+      "name": "Search rows1",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "C3EuYH9AObHYPqw5",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "update",
+        "workspaceId": {
+          "__rl": true,
+          "value": "w8d25w8t",
+          "mode": "list",
+          "cachedResultName": "Default Workspace",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t"
+        },
+        "projectId": {
+          "__rl": true,
+          "value": "pwbonlsiyo3g2ae",
+          "mode": "list",
+          "cachedResultName": "profile and news",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae"
+        },
+        "table": {
+          "__rl": true,
+          "value": "mionkl05iybori3",
+          "mode": "list",
+          "cachedResultName": "lastNews",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae/mionkl05iybori3"
+        },
+        "id": "={{ $json.id_fields.Id }}",
+        "fieldsMapper": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "errors": "null",
+            "lastupdate": "null",
+            "detailedSummary": "null",
+            "shortSummary": "null"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "companyName",
+              "displayName": "companyName",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "shortSummary",
+              "displayName": "shortSummary",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "detailedSummary",
+              "displayName": "detailedSummary",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "lastupdate",
+              "displayName": "lastupdate",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "errors",
+              "displayName": "errors",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 4,
+      "position": [
+        -176,
+        288
+      ],
+      "id": "1434004d-0a84-4a38-94ba-b69d8501fbb0",
+      "name": "Update a row1",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "C3EuYH9AObHYPqw5",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "search",
+        "workspaceId": {
+          "__rl": true,
+          "value": "w8d25w8t",
+          "mode": "list",
+          "cachedResultName": "Default Workspace",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t"
+        },
+        "projectId": {
+          "__rl": true,
+          "value": "pwbonlsiyo3g2ae",
+          "mode": "list",
+          "cachedResultName": "profile and news",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae"
+        },
+        "table": {
+          "__rl": true,
+          "value": "mnw6isgi9j7s4wg",
+          "mode": "list",
+          "cachedResultName": "errors",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae/mnw6isgi9j7s4wg"
+        },
+        "returnAll": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 4,
+      "position": [
+        176,
+        288
+      ],
+      "id": "be952def-5d9e-4977-be3f-3d66a3a012ff",
+      "name": "Search rows3",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "C3EuYH9AObHYPqw5",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "nocoDbApiToken",
+        "operation": "update",
+        "workspaceId": {
+          "__rl": true,
+          "value": "w8d25w8t",
+          "mode": "list",
+          "cachedResultName": "Default Workspace",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t"
+        },
+        "projectId": {
+          "__rl": true,
+          "value": "pwbonlsiyo3g2ae",
+          "mode": "list",
+          "cachedResultName": "profile and news",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae"
+        },
+        "table": {
+          "__rl": true,
+          "value": "mnw6isgi9j7s4wg",
+          "mode": "list",
+          "cachedResultName": "errors",
+          "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae/mnw6isgi9j7s4wg"
+        },
+        "id": "={{ $json.id_fields.Id }}",
+        "fieldsMapper": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "NERetryCount": 0,
+            "newsError": "null",
+            "newsErrorDate": "null",
+            "newsErrorMessage": "null"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "companyName",
+              "displayName": "companyName",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "profileErrorMessage",
+              "displayName": "profileErrorMessage",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "profileErrorDate",
+              "displayName": "profileErrorDate",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "PERetryCounter",
+              "displayName": "PERetryCounter",
+              "type": "number",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "newsErrorMessage",
+              "displayName": "newsErrorMessage",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "newsErrorDate",
+              "displayName": "newsErrorDate",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "NERetryCount",
+              "displayName": "NERetryCount",
+              "type": "number",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "profileErrors",
+              "displayName": "profileErrors",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "newsError",
+              "displayName": "newsError",
+              "type": "string",
+              "display": true,
+              "defaultMatch": false,
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 4,
+      "position": [
+        528,
+        288
+      ],
+      "id": "b3baa915-8d86-43e7-a626-2f13a8ca8837",
+      "name": "Update a row3",
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "C3EuYH9AObHYPqw5",
+          "name": "NocoDB Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "Erasing old news data completed, fetching new data.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        528,
+        160
+      ],
+      "id": "0e98c6f3-0193-468c-a647-67fb44aa986c",
+      "name": "Discord",
+      "webhookId": "93efef84-4594-4fb4-a9cf-8a937b165093",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "QJ2EFo8lbaHb5abA",
+          "name": "Discord Webhook account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ \"signal\": \"trigger\" }]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        288
+      ],
+      "id": "8b0b80d5-aa92-4f10-b448-538215f9611e",
+      "name": "sginal3"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -352,
+        288
+      ],
+      "id": "827f729b-a448-4665-b799-486d43faa79b",
+      "name": "loopOverItems1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        352,
+        288
+      ],
+      "id": "c2dbab38-9916-4568-a78d-6bb1466de505",
+      "name": "loopOverItems3"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ \"signal\": \"trigger\" }]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        160
+      ],
+      "id": "8d8e3385-ae6f-473d-b9f9-0133a54112e6",
+      "name": "sginal4"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ \"signal\": \"trigger\" }]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        704,
+        288
+      ],
+      "id": "61c2da0d-2d7d-40e6-94e7-88cf35da8d12",
+      "name": "sginal5"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Search rows1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search rows1": {
+      "main": [
+        [
+          {
+            "node": "loopOverItems1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row1": {
+      "main": [
+        [
+          {
+            "node": "sginal3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search rows3": {
+      "main": [
+        [
+          {
+            "node": "loopOverItems3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row3": {
+      "main": [
+        [
+          {
+            "node": "sginal5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sginal3": {
+      "main": [
+        [
+          {
+            "node": "loopOverItems1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "loopOverItems1": {
+      "main": [
+        [
+          {
+            "node": "sginal4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "loopOverItems3": {
+      "main": [
+        [
+          {
+            "node": "Discord",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update a row3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sginal4": {
+      "main": [
+        [
+          {
+            "node": "Search rows3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sginal5": {
+      "main": [
+        [
+          {
+            "node": "loopOverItems3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "74ada2ad-f67c-408e-8326-265683d9cd1d",
+  "meta": {
+    "instanceId": "874a53071ff3a00f0c61ef646f6b22fc209bc14b7a8783a508106cc2e7a274f7"
+  },
+  "nodeGroups": [],
+  "id": "uVF1P17v2iDCtHYe",
+  "tags": []
+}

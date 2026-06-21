@@ -1,2 +1,3 @@
-﻿companyName,profileErrorMessage,profileErrorDate,profileErrorRetryCount,profileErrors,newsErrorMessage,newsErrorDate,newsErrorRetryCount,newsError
-,,,,,,,,
+﻿companyName,profileErrorMessage,profileErrorDate,PERetryCounter,profileErrors,newsErrorMessage,newsErrorDate,NERetryCount,newsError
+Microsoft,,,,,,,0,
+Google,,,,,,,0,
