@@ -1289,11 +1289,11 @@
           "cachedResultName": "errors",
           "cachedResultUrl": "http://nocodb_local:8080/#/w8d25w8t/pwbonlsiyo3g2ae/mnw6isgi9j7s4wg"
         },
-        "id": "={{ $json.id_fields.Id }}",
+        "id": "={{ $('getOriginalRetryCount').item.json.id_fields.Id }}",
         "fieldsMapper": {
           "mappingMode": "defineBelow",
           "value": {
-            "NERetryCount": "={{ $json.NERetryCounter }}"
+            "NERetryCounter": "={{ $json.NERetryCounter }}"
           },
           "matchingColumns": [
             "Title"
@@ -1354,8 +1354,8 @@
               "removed": true
             },
             {
-              "id": "NERetryCount",
-              "displayName": "NERetryCount",
+              "id": "NERetryCounter",
+              "displayName": "NERetryCounter",
               "type": "number",
               "display": true,
               "defaultMatch": false,
@@ -2352,6 +2352,11 @@
           }
         ]
       ]
+    },
+    "maxRetryCountReached": {
+      "main": [
+        []
+      ]
     }
   },
   "active": false,
@@ -2360,7 +2365,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "4eb4499c-faaa-4243-89fa-821ee5a4dc4d",
+  "versionId": "05663a20-d869-433a-b5a4-14a6c99719b2",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "874a53071ff3a00f0c61ef646f6b22fc209bc14b7a8783a508106cc2e7a274f7"
