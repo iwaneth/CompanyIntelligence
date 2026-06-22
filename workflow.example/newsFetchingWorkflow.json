@@ -488,12 +488,15 @@
       "id": "df3dce23-cdd3-44d9-8115-17304b0ab630",
       "name": "newsLalmaFailure",
       "webhookId": "80552c5d-927f-4250-9470-ca4fff4a618c",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
       "credentials": {
         "discordWebhookApi": {
           "id": "QJ2EFo8lbaHb5abA",
           "name": "Discord Webhook account"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -510,12 +513,15 @@
       "id": "15164710-00bc-4e61-b7f5-75720cd05db6",
       "name": "newsQwenFailure",
       "webhookId": "80552c5d-927f-4250-9470-ca4fff4a618c",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
       "credentials": {
         "discordWebhookApi": {
           "id": "QJ2EFo8lbaHb5abA",
           "name": "Discord Webhook account"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -532,12 +538,15 @@
       "id": "b2f5b768-2778-44e0-929f-4c421713a1cf",
       "name": "newsGeminiFailure",
       "webhookId": "80552c5d-927f-4250-9470-ca4fff4a618c",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
       "credentials": {
         "discordWebhookApi": {
           "id": "QJ2EFo8lbaHb5abA",
           "name": "Discord Webhook account"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -989,12 +998,15 @@
       "id": "3cd2ba35-62c1-40f0-ae0e-316096f02724",
       "name": "newsHTTPFailure",
       "webhookId": "80552c5d-927f-4250-9470-ca4fff4a618c",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
       "credentials": {
         "discordWebhookApi": {
           "id": "QJ2EFo8lbaHb5abA",
           "name": "Discord Webhook account"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -1655,12 +1667,15 @@
       "id": "402532fa-e69d-4d6e-a7a9-eabd117672ca",
       "name": "newsRefreshNoti",
       "webhookId": "80552c5d-927f-4250-9470-ca4fff4a618c",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
       "credentials": {
         "discordWebhookApi": {
           "id": "QJ2EFo8lbaHb5abA",
           "name": "Discord Webhook account"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -1677,12 +1692,15 @@
       "id": "db62a266-b2c7-494f-888d-9e30bf4786a4",
       "name": "maxRetryCountReached",
       "webhookId": "dc823a39-7d68-484d-9854-37a9d80f1087",
+      "retryOnFail": true,
+      "waitBetweenTries": 3000,
       "credentials": {
         "discordWebhookApi": {
           "id": "QJ2EFo8lbaHb5abA",
           "name": "Discord Webhook account"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     }
   ],
   "pinData": {},
@@ -2365,7 +2383,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "05663a20-d869-433a-b5a4-14a6c99719b2",
+  "versionId": "ae0f16e7-7742-45a6-9f40-94ac77276131",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "874a53071ff3a00f0c61ef646f6b22fc209bc14b7a8783a508106cc2e7a274f7"

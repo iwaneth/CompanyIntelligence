@@ -80,18 +80,6 @@ Company Intelligence Platform
 
 3. **Configure your API keys in `.env`**:
    ```env
-   # Primary AI Model
-   AI_MODEL_1_API_KEY=your_model1_key_here
-   AI_MODEL_1_TYPE=choose_high_level_llm_models
-
-   # Fallback AI Model 2
-   AI_MODEL_2_API_KEY=your_model1_key_here
-   AI_MODEL_2_TYPE=any_model_can_be_a_fallback
-
-   # Fallback AI Model 3
-   AI_MODEL_3_API_KEY=your_model3_key_here
-   AI_MODEL_3_TYPE=any_model_can_be_a_fallback
- 
    # Example configuration:
    openAi > Gemeni > groq
 
@@ -116,12 +104,15 @@ Company Intelligence Platform
 1. Access n8n at `http://localhost:5678`
 2. Import workflows from the repository:
    - `newsFetchingWorkflow.json` - For automated news collection
-   - `profileFetchWorkflow.json` - For company profile data
+   - `profileFetchWorkflow.json` - For auomated profile data refresh
+   - `clearingNewsOldData.json` - For erasing old news data
+   - `clearingProfileOldData.json` - For erasing old Profile Data
 
 3. In each workflow, configure the AI model nodes with your API keys:
    - Set primary AI model credentials
    - Configure fallback nodes with alternative API keys for resilience
    - Link NocoDB credentials for data persistence
+   - Link discord webhook token for getting notification on faliures (optional, if you don't want to link it you have to remove the discord nodes before)
 
 #### Connect NocoDB
 
@@ -187,6 +178,51 @@ FastAPI Backend (Coming Soon)
     ↓
 Frontend Dashboard (Coming Soon)
 ```
+#### CompanyIntelligence - Backend Starter
+
+This workspace contains a minimal FastAPI backend that can fetch data from a NocoDB instance and expose it for frontend consumption.
+
+Quick start
+
+1. Create a virtual environment and activate it:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+2. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+3. Copy and edit environment variables:
+
+```bash
+cp .env.example .env
+# edit .env to set NOCODB_BASE_URL and NOCODB_API_KEY if needed
+```
+
+4. Run the app with uvicorn (development):
+
+```bash
+uvicorn app:app --reload --host 0.0.0.0 --port 8000
+```
+
+5. Example requests:
+
+- Health: `GET /`
+- Fetch a table: `GET /nocodb/{project}/{table}?limit=50`
+
+Suggestions / next steps
+
+- Inspect `workflow.example/` for example CSV exports and map the tables you need to serve.
+- Add pydantic models for typed responses and transform NocoDB rows into shape expected by your frontend.
+- Add pagination, filtering, and field selection endpoints to reduce payload sizes.
+- Add caching (Redis) for expensive/large table requests.
+- Secure endpoints and only expose necessary columns to the frontend.
+
 
 ## Troubleshooting
 
